@@ -42,7 +42,7 @@ class Processor:
         ticker = bf.get_ticker(Pair.BTC_JPY)
         diff = ticker.ltp - self.ltp[-1] if self.ltp else 0.0
         timestamp = ticker.timestamp.timestamp()
-        lb = {'timestamp': timestamp, 'ltp': ticker.ltp, 'diff': diff, 'rsi': None}
+        lb = {'tick_id': ticker.tick_id, 'timestamp': timestamp, 'ltp': ticker.ltp, 'diff': diff, 'rsi': None}
 
         self.ltp.append(ticker.ltp)
         if len(self.ltp) < 15:
