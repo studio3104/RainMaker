@@ -52,15 +52,8 @@ class Processor:
         rsi = talib.RSI(numpy.array(self.ltp), timeperiod=14)[-1]
         ticker_logger.info({**lb, **{'rsi': rsi}})
 
-        self.transact(ticker.ltp, rsi, timestamp, 0.2)
-        self.transact(ticker.ltp, rsi, timestamp, 0.5)
-        self.transact(ticker.ltp, rsi, timestamp, 0.7)
-        self.transact(ticker.ltp, rsi, timestamp, 1.0)
-        self.transact(ticker.ltp, rsi, timestamp, 1.2)
-        self.transact(ticker.ltp, rsi, timestamp, 1.5)
-        self.transact(ticker.ltp, rsi, timestamp, 1.7)
-        self.transact(ticker.ltp, rsi, timestamp, 2.0)
-        self.transact(ticker.ltp, rsi, timestamp, 3.0)
+        for n in range(1, 31):
+            self.transact(ticker.ltp, rsi, timestamp, n * 0.1)
 
     def transact(self, price: float, rsi: float, timestamp: float, loss_cut_rate: float) -> None:
         if loss_cut_rate not in self.positions:
