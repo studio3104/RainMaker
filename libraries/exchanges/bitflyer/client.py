@@ -13,9 +13,14 @@ class BitFlyer:
         response.raise_for_status()
 
         r = response.json()
+        timestamp_str = f"{r['timestamp']}+00:00"
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str)
+        except ValueError:
+            timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S.%f%z')
 
         return Ticker(**{**r, **{
             'product_code': pair,
             'state': getattr(State, '_'.join(r['state'].split())),
-            'timestamp': datetime.strptime(f"{r['timestamp']}+00:00", '%Y-%m-%dT%H:%M:%S.%f%z'),
+            'timestamp': timestamp,
         }})
