@@ -53,7 +53,7 @@ class Processor:
         ticker_logger.info({**lb, **{'rsi': rsi}})
 
         for n in range(1, 31):
-            self.transact(ticker.ltp, rsi, timestamp, n * 0.1)
+            self.transact(ticker.ltp, rsi, timestamp, n / 10)
 
     def transact(self, price: float, rsi: float, timestamp: float, loss_cut_rate: float) -> None:
         if loss_cut_rate not in self.positions:
