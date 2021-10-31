@@ -22,4 +22,4 @@ jobs:
         poetry install
     - name: Run pytest
       run: |
-        pytest -vvs
+        poetry run pytest -vvs
