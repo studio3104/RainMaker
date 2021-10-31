@@ -6,7 +6,7 @@ import json
 import pytest
 from requests_mock.mocker import Mocker
 
-from lib.exchanges.bitflyer import BitFlyer, Ticker, Pair, State
+from libraries.exchanges.bitflyer import BitFlyer, Ticker, Pair, State
 
 
 class TestGetTicker:

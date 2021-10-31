@@ -1,6 +1,6 @@
 import pytest
 
-from lib.exchanges.bitflyer import BitFlyer
+from libraries.exchanges.bitflyer import BitFlyer
 
 
 @pytest.fixture

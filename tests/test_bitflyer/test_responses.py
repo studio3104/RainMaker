@@ -4,7 +4,7 @@ import pytest
 
 from datetime import datetime
 
-from lib.exchanges.bitflyer import Ticker, Pair, State
+from libraries.exchanges.bitflyer import Ticker, Pair, State
 
 
 class TestTicker:

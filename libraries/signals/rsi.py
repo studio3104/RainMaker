@@ -1,0 +1,2 @@
+class RSI:
+    pass

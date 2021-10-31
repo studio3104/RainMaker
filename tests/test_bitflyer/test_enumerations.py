@@ -1,6 +1,6 @@
 import pytest
 
-from lib.exchanges.bitflyer import Pair, State
+from libraries.exchanges.bitflyer import Pair, State
 
 
 class TestPair:
