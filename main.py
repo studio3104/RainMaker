@@ -41,7 +41,8 @@ class Processor:
     def _process(self) -> None:
         ticker = bf.get_ticker(Pair.BTC_JPY)
         diff = ticker.ltp - self.ltp[-1] if self.ltp else 0.0
-        lb = {'timestamp': ticker.timestamp.timestamp(), 'ltp': ticker.ltp, 'diff': diff, 'rsi': None}
+        timestamp = ticker.timestamp.timestamp()
+        lb = {'timestamp': timestamp, 'ltp': ticker.ltp, 'diff': diff, 'rsi': None}
 
         self.ltp.append(ticker.ltp)
         if len(self.ltp) < 15:
@@ -51,17 +52,17 @@ class Processor:
         rsi = talib.RSI(numpy.array(self.ltp), timeperiod=14)[-1]
         ticker_logger.info({**lb, **{'rsi': rsi}})
 
-        self.transact(ticker.ltp, rsi, 0.2)
-        self.transact(ticker.ltp, rsi, 0.5)
-        self.transact(ticker.ltp, rsi, 0.7)
-        self.transact(ticker.ltp, rsi, 1.0)
-        self.transact(ticker.ltp, rsi, 1.2)
-        self.transact(ticker.ltp, rsi, 1.5)
-        self.transact(ticker.ltp, rsi, 1.7)
-        self.transact(ticker.ltp, rsi, 2.0)
-        self.transact(ticker.ltp, rsi, 3.0)
+        self.transact(ticker.ltp, rsi, timestamp, 0.2)
+        self.transact(ticker.ltp, rsi, timestamp, 0.5)
+        self.transact(ticker.ltp, rsi, timestamp, 0.7)
+        self.transact(ticker.ltp, rsi, timestamp, 1.0)
+        self.transact(ticker.ltp, rsi, timestamp, 1.2)
+        self.transact(ticker.ltp, rsi, timestamp, 1.5)
+        self.transact(ticker.ltp, rsi, timestamp, 1.7)
+        self.transact(ticker.ltp, rsi, timestamp, 2.0)
+        self.transact(ticker.ltp, rsi, timestamp, 3.0)
 
-    def transact(self, price: float, rsi: float, loss_cut_rate: float) -> None:
+    def transact(self, price: float, rsi: float, timestamp: float, loss_cut_rate: float) -> None:
         if loss_cut_rate not in self.positions:
             self.positions[loss_cut_rate] = None
         if loss_cut_rate not in self.profits:
@@ -69,7 +70,7 @@ class Processor:
 
         position = self.positions[loss_cut_rate]
         fee = price * 0.0015
-        lb = {'lossCutRate': loss_cut_rate, 'price': price, 'fee': fee}
+        lb = {'timestamp': timestamp, 'lossCutRate': loss_cut_rate, 'price': price, 'fee': fee}
 
         if position is None:
             if rsi < 30:
