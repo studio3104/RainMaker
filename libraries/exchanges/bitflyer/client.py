@@ -39,7 +39,12 @@ class BitFlyerRealTime:
         self._message_handler_of: Dict[str, Callable] = {}
 
     def start(self) -> None:
-        t = Thread(target=lambda: self._ws_app.run_forever())
+        def run(ws: WebSocketApp) -> None:
+            while True:
+                ws.run_forever(ping_interval=30, ping_timeout=10)
+                time.sleep(3)
+
+        t = Thread(target=run, args=(self._ws_app, ))
         t.start()
         time.sleep(3)
 
