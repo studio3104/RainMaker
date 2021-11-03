@@ -42,14 +42,10 @@ class BitFlyerRealTime:
         def run(ws: WebSocketApp) -> None:
             while True:
                 ws.run_forever(ping_interval=30, ping_timeout=10)
-                time.sleep(3)
+                time.sleep(1)
 
         t = Thread(target=run, args=(self._ws_app, ))
         t.start()
-        time.sleep(3)
-
-        for c in self._message_handler_of.keys():
-            self._subscribe(c)
 
     def subscribe(self, channel: Channel, product_code: ProductCode, handler: Callable) -> None:
         channel_name = f'{channel.name}_{product_code.name}'
@@ -81,5 +77,6 @@ class BitFlyerRealTime:
     def _on_close(self, ws: WebSocketApp, close_status_code, close_msg) -> None:
         print("### closed ###")
 
-    def _on_open(self, ws: WebSocketApp):
-        pass
+    def _on_open(self, _: WebSocketApp):
+        for c in self._message_handler_of.keys():
+            self._subscribe(c)
