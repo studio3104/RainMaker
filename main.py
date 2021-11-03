@@ -9,7 +9,7 @@ import talib
 
 from collections import deque
 
-from libraries.exchanges.bitflyer import BitFlyer, Pair
+from libraries.exchanges.bitflyer import BitFlyer, ProductCode
 
 bf = BitFlyer()
 
@@ -39,7 +39,7 @@ class Processor:
             logger.error(e)
 
     def _process(self) -> None:
-        ticker = bf.get_ticker(Pair.BTC_JPY)
+        ticker = bf.get_ticker(ProductCode.BTC_JPY)
         diff = ticker.ltp - self.ltp[-1] if self.ltp else 0.0
         timestamp = ticker.timestamp.timestamp()
         lb = {'tick_id': ticker.tick_id, 'timestamp': timestamp, 'ltp': ticker.ltp, 'diff': diff, 'rsi': None}

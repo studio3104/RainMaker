@@ -6,7 +6,7 @@ import json
 import pytest
 from requests_mock.mocker import Mocker
 
-from libraries.exchanges.bitflyer import BitFlyer, Ticker, Pair, State
+from libraries.exchanges.bitflyer import BitFlyer, Ticker, ProductCode, State
 
 
 class TestGetTicker:
@@ -29,7 +29,7 @@ class TestGetTicker:
                         'volume': 11559.369918,
                         'volume_by_product': 1740.24096177
                     },
-                    Pair.BTC_JPY,
+                    ProductCode.BTC_JPY,
             ),
             (
                     {
@@ -49,11 +49,11 @@ class TestGetTicker:
                         'volume': 14802.8781446,
                         'volume_by_product': 14802.8781446
                     },
-                    Pair.ETH_JPY,
+                    ProductCode.ETH_JPY,
             )
     ))
     def test_get_ticker(
-            self, mock_response: Dict[str, Union[str, int, float]], product_code: Pair,
+            self, mock_response: Dict[str, Union[str, int, float]], product_code: ProductCode,
             client: BitFlyer, requests_mock: Mocker,
     ) -> None:
 
@@ -69,7 +69,7 @@ class TestGetTicker:
             attr = getattr(response, k)
 
             if k == 'product_code':
-                assert attr == getattr(Pair, v)
+                assert attr == getattr(ProductCode, v)
             elif k == 'state':
                 assert attr == getattr(State, '_'.join(v.split()))
             elif k == 'timestamp':

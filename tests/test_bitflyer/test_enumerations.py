@@ -1,6 +1,6 @@
 import pytest
 
-from libraries.exchanges.bitflyer import Pair, State
+from libraries.exchanges.bitflyer import ProductCode, State
 
 
 class TestPair:
@@ -14,7 +14,7 @@ class TestPair:
             'BCH_BTC',
     ))
     def test_hasattr(self, name: str) -> None:
-        assert hasattr(Pair, name)
+        assert hasattr(ProductCode, name)
 
 
 class TestState:

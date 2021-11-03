@@ -6,17 +6,33 @@ def run() -> None:
     ticker_timestamps = []
     ltps = []
     rsis = []
-    with open('ticker.log') as f:
+    tickers = [[]]
+    idx = 0
+
+    with open('ticker1.log') as f:
         for i, line in enumerate(f):
-            if i >= 3000:
-                break
+            if i == 6274:
+                idx += 1
+                tickers.append([])
+                continue
+            if 6274 < i < 6697:
+                continue
+
             _line = line.replace("'", '"')
             _line = _line.replace('None', 'null')
             r = json.loads(_line)
 
+            tickers[idx].append({'timestamp': r['timestamp'], 'price': r['ltp']})
+
             ticker_timestamps.append(r['timestamp'])
             ltps.append(r['ltp'])
             rsis.append(r['rsi'])
+
+    for i, t in enumerate(tickers):
+        with open(f'tickers/ticker{str(i).zfill(4)}.json', mode='w') as f:
+            f.write(json.dumps(t))
+
+    return
 
     tx_timestamps = [ticker_timestamps[0]]
     bought = [[], []]
