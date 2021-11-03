@@ -4,7 +4,7 @@ import pytest
 
 from datetime import datetime
 
-from libraries.exchanges.bitflyer import Ticker, Pair, State
+from libraries.exchanges.bitflyer import Ticker, ProductCode, State
 
 
 class TestTicker:
@@ -29,7 +29,7 @@ class TestTicker:
         assert name in Ticker.__dataclass_fields__  # noqa
 
     @pytest.mark.parametrize(('name', 'data_type'), (
-            ('product_code', Pair),
+            ('product_code', ProductCode),
             ('state', State),
             ('timestamp', datetime),
             ('tick_id', int),

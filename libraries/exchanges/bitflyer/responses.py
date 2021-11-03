@@ -1,12 +1,14 @@
+from typing import Any, Dict
+
 from dataclasses import dataclass
 from datetime import datetime
 
-from .enumerations import Pair, State
+from .enumerations import ProductCode, State
 
 
 @dataclass(frozen=True)
 class Ticker:
-    product_code: Pair
+    product_code: ProductCode
     state: State
     timestamp: datetime
     tick_id: int
@@ -21,3 +23,22 @@ class Ticker:
     ltp: float
     volume: float
     volume_by_product: float
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Ticker':
+        ts: str = data['timestamp']
+        if ts.endswith('Z'):
+            ts = ts[:-1]
+        if (sub := len(ts.split('.')[-1]) - 6) > 0:
+            ts = ts[:-sub]
+        timestamp_str = f'{ts}+00:00'
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str)
+        except ValueError:
+            timestamp = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S.%f%z')
+
+        return Ticker(**{**data, **{
+            'product_code': getattr(ProductCode, data['product_code']),
+            'state': getattr(State, '_'.join(data['state'].split())),
+            'timestamp': timestamp,
+        }})
