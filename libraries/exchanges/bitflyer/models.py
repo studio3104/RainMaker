@@ -2,6 +2,7 @@ from typing import Any, Union
 
 import os
 from enum import Enum, EnumMeta
+from datetime import datetime, timezone
 
 from pynamodb.models import Model, GlobalSecondaryIndex
 from pynamodb.indexes import AllProjection
@@ -60,4 +61,4 @@ class TickerTable(Model):
     volume_by_product = NumberAttribute()
 
     product_code_index = ProductCodeIndex()
-    ttl = TTLAttribute()
+    ttl = TTLAttribute(default=datetime(9999, 12, 31, 23, 59, 59, 999999, tzinfo=timezone.utc))
