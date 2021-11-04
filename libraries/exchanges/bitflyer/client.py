@@ -15,6 +15,7 @@ from .enumerations import ProductCode, Channel, PublicChannel
 from .responses import Ticker
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class BitFlyer:
