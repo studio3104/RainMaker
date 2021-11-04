@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Union
 
 import os
@@ -8,7 +9,7 @@ from pynamodb.models import Model, GlobalSecondaryIndex
 from pynamodb.indexes import AllProjection
 from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, TTLAttribute
 
-from libraries.exchanges.bitflyer import ProductCode, State
+from libraries.exchanges.bitflyer import ProductCode, State, ChartType
 
 
 class EnumAttribute(UnicodeAttribute):
@@ -61,4 +62,25 @@ class TickerTable(Model):
     volume_by_product = NumberAttribute()
 
     product_code_index = ProductCodeIndex()
+    ttl = TTLAttribute(default=datetime(9999, 12, 31, 23, 59, 59, 999999, tzinfo=timezone.utc))
+
+
+class ChartTable(Model):
+    class Meta:
+        table_name = os.environ.get('DDB_TABLE_NAME', 'Chart')
+        region = os.environ.get('AWS_REGION', 'ap-northeast-1')
+        billing_mode = 'PAY_PER_REQUEST'
+
+    period_from = UTCDateTimeAttribute(range_key=True)
+    chart_type = EnumAttribute(ChartType, hash_key=True)
+
+    open_value = NumberAttribute()
+    high_value = NumberAttribute()
+    low_value = NumberAttribute()
+    close_value = NumberAttribute()
+    volume = NumberAttribute()
+
+    open_timestamp = UTCDateTimeAttribute()
+    close_timestamp = UTCDateTimeAttribute()
+
     ttl = TTLAttribute(default=datetime(9999, 12, 31, 23, 59, 59, 999999, tzinfo=timezone.utc))
