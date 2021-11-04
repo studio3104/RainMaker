@@ -1,7 +1,10 @@
+import logging
 import dataclasses
 
 from libraries.exchanges.bitflyer import BitFlyerRealTime, Ticker, PublicChannel, ProductCode
 from libraries.exchanges.bitflyer.models import TickerTable
+
+logging.basicConfig(level=logging.INFO)
 
 client = BitFlyerRealTime()
 
