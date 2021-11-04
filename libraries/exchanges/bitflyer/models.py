@@ -3,8 +3,9 @@ from typing import Any, Union
 import os
 from enum import Enum, EnumMeta
 
-from pynamodb.models import Model
-from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute
+from pynamodb.models import Model, GlobalSecondaryIndex
+from pynamodb.indexes import AllProjection
+from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UTCDateTimeAttribute, TTLAttribute
 
 from libraries.exchanges.bitflyer import ProductCode, State
 
@@ -28,10 +29,19 @@ class EnumAttribute(UnicodeAttribute):
         return getattr(self.enum, value)
 
 
+class ProductCodeIndex(GlobalSecondaryIndex):
+    class Meta:
+        projection = AllProjection()
+
+    product_code = EnumAttribute(ProductCode, hash_key=True)
+    timestamp = UTCDateTimeAttribute(range_key=True)
+
+
 class TickerTable(Model):
     class Meta:
         table_name = os.environ.get('DDB_TABLE_NAME', 'Ticker')
         region = os.environ.get('AWS_REGION', 'ap-northeast-1')
+        billing_mode = 'PAY_PER_REQUEST'
 
     tick_id = NumberAttribute(hash_key=True)
     product_code = EnumAttribute(ProductCode)
@@ -48,3 +58,6 @@ class TickerTable(Model):
     ltp = NumberAttribute()
     volume = NumberAttribute()
     volume_by_product = NumberAttribute()
+
+    product_code_index = ProductCodeIndex()
+    ttl = TTLAttribute()
