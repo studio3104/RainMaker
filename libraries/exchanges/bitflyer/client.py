@@ -3,6 +3,7 @@ from typing import Callable, Dict
 import json
 import requests
 import time
+import logging
 
 from threading import Thread
 
@@ -12,6 +13,8 @@ from websocket._exceptions import WebSocketConnectionClosedException
 
 from .enumerations import ProductCode, Channel, PublicChannel
 from .responses import Ticker
+
+logger = logging.getLogger(__name__)
 
 
 class BitFlyer:
@@ -27,7 +30,7 @@ class BitFlyerRealTime:
     ENDPOINT = 'wss://ws.lightstream.bitflyer.com/json-rpc'
 
     def __init__(self) -> None:
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         self._ws_app = websocket.WebSocketApp(
             self.ENDPOINT,
             on_open=self._on_open,
@@ -39,6 +42,8 @@ class BitFlyerRealTime:
         self._message_handler_of: Dict[str, Callable] = {}
 
     def start(self) -> None:
+        logger.info('websocket server is now starting')
+
         def run(ws: WebSocketApp) -> None:
             while True:
                 ws.run_forever(ping_interval=30, ping_timeout=10)
@@ -46,6 +51,8 @@ class BitFlyerRealTime:
 
         t = Thread(target=run, args=(self._ws_app, ))
         t.start()
+
+        logger.info('websocket server has started')
 
     def subscribe(self, channel: Channel, product_code: ProductCode, handler: Callable) -> None:
         channel_name = f'{channel.name}_{product_code.name}'
@@ -71,12 +78,13 @@ class BitFlyerRealTime:
         if channel.startswith(PublicChannel.lightning_ticker.name):
             handler(Ticker.from_dict(message))
 
-    def _on_error(self, ws: WebSocketApp, error) -> None:
-        print(error)
+    def _on_error(self, _: WebSocketApp, error) -> None:
+        logger.error(error)
 
     def _on_close(self, ws: WebSocketApp, close_status_code, close_msg) -> None:
-        print("### closed ###")
+        logger.info('connection closed')
 
     def _on_open(self, _: WebSocketApp):
         for c in self._message_handler_of.keys():
+            logger.info(f'`{c}` has been subscribed')
             self._subscribe(c)
