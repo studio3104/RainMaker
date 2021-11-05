@@ -54,7 +54,7 @@ class State(enum.Enum):
 chart_types = []
 for p in ProductCode:
     for c in Candlestick:
-        chart_types.append((f'{p.name}_{c.name}', c.value))
+        chart_types.append((f'{p.name}_{c.name}', enum.auto()))
 
 
 ChartType = enum.Enum('ChartType', chart_types)
