@@ -3,7 +3,7 @@ from typing import Any, Dict
 from dataclasses import dataclass
 from datetime import datetime
 
-from .enumerations import ProductCode, State
+from .enumerations import ProductCode, State, ChartType
 
 
 @dataclass(frozen=True)
@@ -42,3 +42,18 @@ class Ticker:
             'state': getattr(State, '_'.join(data['state'].split())),
             'timestamp': timestamp,
         }})
+
+
+@dataclass(frozen=True)
+class Chart:
+    period_from: datetime
+    chart_type: ChartType
+
+    open_value: float
+    high_value: float
+    low_value: float
+    close_value: float
+    volume: float
+
+    open_timestamp: datetime
+    close_timestamp: datetime
