@@ -15,6 +15,7 @@ def _handler(ticker: Ticker) -> None:
 
 
 def run() -> None:
+    client.subscribe(PublicChannel.lightning_ticker, ProductCode.FX_BTC_JPY, _handler)
     client.subscribe(PublicChannel.lightning_ticker, ProductCode.BTC_JPY, _handler)
     client.start()
 

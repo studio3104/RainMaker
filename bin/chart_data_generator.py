@@ -109,8 +109,7 @@ def plot(sticks_of: STICKS_OF, chart_type: ChartType) -> None:
     mplfinance.plot(data_frame, type='candle', mav=(5, 14, 25), volume=True)
 
 
-def run() -> None:
-    product_code = ProductCode.BTC_JPY
+def run(product_code: ProductCode) -> None:
     stick_of: STICK_OF = query_tickers(product_code)
     sticks_of: STICKS_OF = {}
 
@@ -124,4 +123,5 @@ def run() -> None:
 
 
 if __name__ == '__main__':
-    run()
+    run(ProductCode.BTC_JPY)
+    run(ProductCode.FX_BTC_JPY)
