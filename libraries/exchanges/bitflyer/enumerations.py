@@ -2,9 +2,6 @@ import enum
 
 
 class Candlestick(enum.Enum):
-    ONE_SECOND = 1
-    FIVE_SECONDS = 5
-    TEN_SECONDS = 10
     FIFTEEN_SECONDS = 15
     THIRTY_SECONDS = 30
 

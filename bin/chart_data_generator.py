@@ -1,11 +1,13 @@
-from typing import Dict, Union
+from typing import Dict, Union, List, Tuple
 
 import pandas
 import mplfinance
 from datetime import datetime, timezone
 
+from pynamodb.exceptions import DoesNotExist
+
 from libraries.exchanges.bitflyer import ProductCode, Candlestick, ChartType
-from libraries.exchanges.bitflyer.models import TickerTable, ProductCodeIndex
+from libraries.exchanges.bitflyer.models import TickerTable, ProductCodeIndex, ChartTable
 
 STICK_OF = Dict[datetime, Dict[str, Union[int, float, datetime]]]
 STICKS_OF = Dict[ChartType, STICK_OF]
@@ -67,17 +69,19 @@ def summarize(stick_of: STICK_OF, duration: int) -> STICK_OF:
     return new_stick_of
 
 
-def query_tickers(product_code: ProductCode) -> STICK_OF:
-    _from = datetime(2021, 11, 4, 5, 15, tzinfo=timezone.utc)
-    until = datetime(2021, 11, 4, 7, tzinfo=timezone.utc)
-    tickers = ProductCodeIndex.query(
+def query_tickers(product_code: ProductCode) -> Tuple[List[TickerTable], STICK_OF]:
+    _from = datetime(2021, 11, 4, tzinfo=timezone.utc)
+    until = datetime(2030, 11, 5, 23, tzinfo=timezone.utc)
+    result = ProductCodeIndex.query(
         product_code,
         ProductCodeIndex.timestamp.between(_from, until),
     )
     stick_of: STICK_OF = {}
+    tickers = []
 
-    for ticker in tickers:
+    for ticker in result:
         t: TickerTable = ticker
+        tickers.append(t)
         ts: datetime = t.timestamp
 
         stick_of[ts] = {
@@ -90,7 +94,7 @@ def query_tickers(product_code: ProductCode) -> STICK_OF:
             'close_ts': ts,
         }
 
-    return stick_of
+    return tickers, stick_of
 
 
 def plot(sticks_of: STICKS_OF, chart_type: ChartType) -> None:
@@ -106,11 +110,38 @@ def plot(sticks_of: STICKS_OF, chart_type: ChartType) -> None:
     ], index=list(sticks_of[chart_type].keys()))
     data_frame.index.name = 'Date'
 
-    mplfinance.plot(data_frame, type='candle', mav=(5, 14, 25), volume=True)
+    if not data_frame.empty:
+        mplfinance.plot(data_frame, type='candle', mav=(5, 14, 25), volume=True)
+
+
+def store(sticks_of: STICKS_OF) -> None:
+    with ChartTable.batch_write() as batch:
+        for chart_type, stick_of in sticks_of.items():
+            for ts, stick in stick_of.items():
+                try:
+                    chart = ChartTable.get(chart_type, ts)
+                except DoesNotExist:
+                    chart = ChartTable(chart_type, ts)
+
+                chart.volume = (chart.volume or 0) + stick['volume']
+
+                if chart.high_value is None or chart.high_value < stick['high']:
+                    chart.high_value = stick['high']
+                if chart.low_value is None or chart.low_value > stick['low']:
+                    chart.low_value = stick['low']
+
+                if chart.open_timestamp is None or chart.open_timestamp > stick['open_ts']:
+                    chart.open_timestamp = stick['open_ts']
+                    chart.open_value = stick['open']
+                if chart.close_timestamp is None or chart.close_timestamp < stick['close_ts']:
+                    chart.close_timestamp = stick['close_ts']
+                    chart.close_value = stick['close']
+
+                batch.save(chart)
 
 
 def run(product_code: ProductCode) -> None:
-    stick_of: STICK_OF = query_tickers(product_code)
+    tickers, stick_of = query_tickers(product_code)
     sticks_of: STICKS_OF = {}
 
     for c in Candlestick:
@@ -118,8 +149,14 @@ def run(product_code: ProductCode) -> None:
         sticks_of[chart_type] = summarize(stick_of, c.value)
         stick_of = sticks_of[chart_type]
 
-    for ct in sticks_of.keys():
-        plot(sticks_of, ct)
+    # for ct in sticks_of.keys():
+    #     plot(sticks_of, ct)
+
+    store(sticks_of)
+
+    with TickerTable.batch_write() as batch:
+        for t in tickers:
+            batch.delete(t)
 
 
 if __name__ == '__main__':
