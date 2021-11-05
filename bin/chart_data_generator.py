@@ -2,6 +2,8 @@ from typing import Dict, Union, List, Tuple
 
 import pandas
 import mplfinance
+import time
+import threading
 from datetime import datetime, timezone
 
 from pynamodb.exceptions import DoesNotExist
@@ -160,5 +162,17 @@ def run(product_code: ProductCode) -> None:
 
 
 if __name__ == '__main__':
-    run(ProductCode.BTC_JPY)
-    run(ProductCode.FX_BTC_JPY)
+    interval = 10
+    start_time = time.time()
+
+    def _run() -> None:
+        run(ProductCode.BTC_JPY)
+        run(ProductCode.FX_BTC_JPY)
+
+    while True:
+        t = threading.Thread(target=_run)
+        t.start()
+        t.join()
+
+        time_to_wait = ((start_time - time.time()) % interval) or interval
+        time.sleep(time_to_wait)
