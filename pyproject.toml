@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rainmaker"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["studio3104 <studio3104.com@gmail.com>"]
 license = "MIT"
