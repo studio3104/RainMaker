@@ -1,6 +1,5 @@
 from typing import List
 
-from datetime import datetime, timedelta
 import pandas
 import numpy
 import mplfinance
@@ -46,7 +45,7 @@ def detect_levels(df: pandas.DataFrame) -> List[int]:
 def create_data_frame_from_ddb(chart_type: ChartType) -> pandas.DataFrame:
     data = []
     index = []
-    q = ChartTable.query(chart_type, ChartTable.period_from > datetime.utcnow() - timedelta(minutes=60))
+    q = ChartTable.query(chart_type)
 
     for c in q:
         index.append(c.period_from)
@@ -65,10 +64,10 @@ def create_data_frame_from_ddb(chart_type: ChartType) -> pandas.DataFrame:
 
 
 def run() -> None:
-    data_frame = create_data_frame_from_ddb(ChartType.BTC_JPY_ONE_MINUTE)
+    data_frame = create_data_frame_from_ddb(ChartType.BTC_JPY_ONE_HOUR)
     if not data_frame.empty:
         levels = detect_levels(data_frame)
-        mplfinance.plot(data_frame, hlines=levels, type='candle', mav=(5, 14, 25), volume=True)
+        mplfinance.plot(data_frame, hlines=levels, type='candle', mav=(5, 14, 21), volume=True)
 
 
 if __name__ == '__main__':
