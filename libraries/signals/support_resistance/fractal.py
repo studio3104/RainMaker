@@ -16,8 +16,7 @@ class Fractal(SupportResistance):
             if self._is_support(i):
                 level = int(self.df['Low'][i])
                 self._supports.append(level)
-
-            if self._is_resistance(i):
+            elif self._is_resistance(i):
                 level = int(self.df['High'][i])
                 self._resistances.append(level)
 
@@ -36,5 +35,5 @@ class Fractal(SupportResistance):
                 self.df['High'][i] > self.df['High'][i + 1] > self.df['High'][i + 2]
         )
 
-    def _is_far_from_level(self, mean: numpy.float64, level: int, ) -> bool:
+    def _is_far_from_level(self, mean: numpy.float64, level: int) -> bool:
         return numpy.sum([abs(level - x) < mean for x in self._levels]) == 0

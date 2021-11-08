@@ -3,7 +3,7 @@ import mplfinance
 
 from libraries.exchanges.bitflyer import ChartType
 from libraries.exchanges.bitflyer.models import ChartTable
-from libraries.signals.support_resistance import SupportResistance, Fractal, KMeans
+from libraries.signals.support_resistance import SupportResistance, Fractal, WindowShifting, KMeans
 
 
 def plot(_df: pandas.DataFrame, _sr: SupportResistance.__class__) -> None:
@@ -34,3 +34,4 @@ if __name__ == '__main__':
 
     plot(df, KMeans)
     plot(df, Fractal)
+    plot(df, WindowShifting)
