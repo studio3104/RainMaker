@@ -1,7 +1,7 @@
-import uuid
 from typing import Any, Union
 
 import os
+import pandas
 from enum import Enum, EnumMeta
 from datetime import datetime, timezone
 
@@ -84,3 +84,24 @@ class ChartTable(Model):
     close_timestamp = UTCDateTimeAttribute()
 
     ttl = TTLAttribute(default=datetime(9999, 12, 31, 23, 59, 59, 999999, tzinfo=timezone.utc))
+
+    @classmethod
+    def query_as_data_frame(cls, *args, **kwargs) -> pandas.DataFrame:
+        data = []
+        index = []
+        q = ChartTable.query(*args, **kwargs)
+
+        for c in q:
+            index.append(c.period_from)
+            data.append({
+                'Open': c.open_value,
+                'High': c.high_value,
+                'Low': c.low_value,
+                'Close': c.close_value,
+                'Volume': c.volume,
+            })
+
+        data_frame = pandas.DataFrame(data, index=index)
+        data_frame.index.name = 'Date'
+
+        return data_frame
