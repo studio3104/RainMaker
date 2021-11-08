@@ -99,23 +99,6 @@ def query_tickers(product_code: ProductCode) -> Tuple[List[TickerTable], STICK_O
     return tickers, stick_of
 
 
-def plot(sticks_of: STICKS_OF, chart_type: ChartType) -> None:
-    data_frame = pandas.DataFrame([
-        {
-            'Open': v['open'],
-            'High': v['high'],
-            'Low': v['low'],
-            'Close': v['close'],
-            'Volume': v['volume'],
-        }
-        for _, v in sticks_of[chart_type].items()
-    ], index=list(sticks_of[chart_type].keys()))
-    data_frame.index.name = 'Date'
-
-    if not data_frame.empty:
-        mplfinance.plot(data_frame, type='candle', mav=(5, 14, 25), volume=True)
-
-
 def store(sticks_of: STICKS_OF) -> None:
     with ChartTable.batch_write() as batch:
         for chart_type, stick_of in sticks_of.items():
@@ -150,9 +133,6 @@ def run(product_code: ProductCode) -> None:
         chart_type = getattr(ChartType, f'{product_code.name}_{c.name}')
         sticks_of[chart_type] = summarize(stick_of, c.value)
         stick_of = sticks_of[chart_type]
-
-    # for ct in sticks_of.keys():
-    #     plot(sticks_of, ct)
 
     store(sticks_of)
 
