@@ -11,30 +11,32 @@ class WindowShifting(SupportResistance):
     WINDOW_SIZE = 9
 
     def _set_levels(self) -> None:
-        mean = numpy.mean(self.df['High'] - self.df['Low'])
+        self._mean = numpy.mean(self.df['High'] - self.df['Low'])
         high_range = self._determine_max_or_min_within_window('High', max)
         low_range = self._determine_max_or_min_within_window('Low', min)
 
         pivot, _ = divmod(self.WINDOW_SIZE, 2)
-        max_list = []
-        min_list = []
-        for i in range(pivot, len(self.df) - pivot):
-            current_max = high_range[i - pivot]
-            if current_max not in max_list:
-                max_list.clear()
-            max_list.append(current_max)
-            if len(max_list) == pivot and self._is_far_from_level(mean, current_max):
-                self._levels.append(current_max)
+        self.__set_levels(high_range, pivot, self._resistances)
+        self.__set_levels(low_range, pivot, self._supports)
 
-            current_min = low_range[i - pivot]
-            if current_min not in min_list:
-                min_list.clear()
-            min_list.append(current_min)
-            if len(min_list) == pivot and self._is_far_from_level(mean, current_min):
-                self._levels.append(current_min)
+        for n in (self._resistances + self._supports):
+            if self._is_far_from_level(n):
+                self._levels.append(n)
 
-    def _is_far_from_level(self, mean: numpy.float64, level: int) -> bool:
-        return numpy.sum([abs(level - x) < mean for x in self._levels]) == 0
+    @staticmethod
+    def __set_levels(nums: List[int], pivot: int, target: List[int]) -> None:
+        previous, counter = None, 0
+        for n in nums:
+            if n != previous:
+                previous, counter = n, 1
+                continue
+
+            counter += 1
+            if counter == pivot:
+                target.append(n)
+
+    def _is_far_from_level(self, level: int) -> bool:
+        return numpy.sum([abs(level - x) < self._mean for x in self._levels]) == 0
 
     def _determine_max_or_min_within_window(self, high_or_low: str, max_or_min: Union[max, min]) -> List[int]:
         nums = numpy.array(self.df[high_or_low])

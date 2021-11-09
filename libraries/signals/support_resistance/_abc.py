@@ -6,12 +6,11 @@ import pandas
 
 
 class SupportResistance(ABC):
-    _levels: List[int] = []
-    _supports: List[int] = []
-    _resistances: List[int] = []
-
     def __init__(self, df: pandas.DataFrame) -> None:
         self.df = df
+        self._levels: List[int] = []
+        self._supports: List[int] = []
+        self._resistances: List[int] = []
         self._set_levels()
 
     @property

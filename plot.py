@@ -32,6 +32,6 @@ if __name__ == '__main__':
     if df.empty:
         exit()
 
-    plot(df, KMeans)
-    plot(df, Fractal)
-    plot(df, WindowShifting)
+    plot(pandas.DataFrame.copy(df), KMeans)
+    plot(pandas.DataFrame.copy(df), Fractal)
+    plot(pandas.DataFrame.copy(df), WindowShifting)
