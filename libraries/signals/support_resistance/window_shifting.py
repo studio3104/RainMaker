@@ -19,12 +19,7 @@ class WindowShifting(SupportResistance):
         self.__set_levels(high_range, pivot, self._resistances)
         self.__set_levels(low_range, pivot, self._supports)
 
-        for n in (self._resistances + self._supports):
-            if self._is_far_from_level(n):
-                self._levels.append(n)
-
-    @staticmethod
-    def __set_levels(nums: List[int], pivot: int, target: List[int]) -> None:
+    def __set_levels(self, nums: List[int], pivot: int, target: List[int]) -> None:
         previous, counter = None, 0
         for n in nums:
             if n != previous:
@@ -34,6 +29,9 @@ class WindowShifting(SupportResistance):
             counter += 1
             if counter == pivot:
                 target.append(n)
+
+            if self._is_far_from_level(n):
+                self._levels.append(n)
 
     def _is_far_from_level(self, level: int) -> bool:
         return numpy.sum([abs(level - x) < self._mean for x in self._levels]) == 0
