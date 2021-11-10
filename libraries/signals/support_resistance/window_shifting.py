@@ -1,6 +1,7 @@
 from typing import List, Union
 
 import numpy
+import math
 
 from ._abc import SupportResistance
 
@@ -8,14 +9,14 @@ from ._abc import SupportResistance
 class WindowShifting(SupportResistance):
     # Ref: https://medium.datadriveninvestor.com/how-to-detect-support-resistance-levels-and-breakout-using-python-f8b5dac42f21
 
-    WINDOW_SIZE = 9
+    WINDOW_SIZE = 5  # これはデータフレームの length に応じて決めるほうがいいかもしれない
 
     def _set_levels(self) -> None:
         self._mean = numpy.mean(self.df['High'] - self.df['Low'])
         high_range = self._determine_max_or_min_within_window('High', max)
         low_range = self._determine_max_or_min_within_window('Low', min)
 
-        pivot, _ = divmod(self.WINDOW_SIZE, 2)
+        pivot = math.ceil(self.WINDOW_SIZE / 2)
         self.__set_levels(high_range, pivot, self._resistances)
         self.__set_levels(low_range, pivot, self._supports)
 
