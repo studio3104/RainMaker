@@ -9,7 +9,7 @@ from ._abc import SupportResistance
 class WindowShifting(SupportResistance):
     # Ref: https://medium.datadriveninvestor.com/how-to-detect-support-resistance-levels-and-breakout-using-python-f8b5dac42f21
 
-    WINDOW_SIZE = 5  # これはデータフレームの length に応じて決めるほうがいいかもしれない
+    WINDOW_SIZE = 9  # This may be determined according to the length of the data frame size
 
     def _set_levels(self) -> None:
         self._mean = numpy.mean(self.df['High'] - self.df['Low'])
