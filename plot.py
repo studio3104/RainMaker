@@ -11,8 +11,14 @@ def plot(_df: pandas.DataFrame, _sr: SupportResistance.__class__) -> None:
     mplfinance.plot(
         _df, title=_sr.__name__, type='candle', mav=(5, 14, 21), volume=False,
         # hlines={
-        #     'hlines': sr.levels + sr.supports + sr.resistances,
-        #     'colors': ['b' for _ in sr.levels] + ['g' for _ in sr.supports] + ['r' for _ in sr.resistances],
+        #     'hlines': sr.supports + sr.resistances,
+        #     'colors': ['g' for _ in sr.supports] + ['r' for _ in sr.resistances],
+        #     'linewidths': tuple([0.5 for _ in range(len(sr.supports) + len(sr.resistances))]),
+        #     'linestyle': '-.',
+        # }
+        # hlines={
+        #     'hlines': sr.supports + sr.resistances + sr.levels,
+        #     'colors': ['g' for _ in sr.supports] + ['r' for _ in sr.resistances] + ['b' for _ in sr.levels],
         #     'linewidths': tuple([0.5 for _ in range(len(sr.levels) + len(sr.supports) + len(sr.resistances))]),
         #     'linestyle': '-.',
         # }
@@ -28,10 +34,10 @@ if __name__ == '__main__':
     from datetime import datetime
     df = ChartTable.query_as_data_frame(
         ChartType.BTC_JPY_FIFTEEN_MINUTES,
-        ChartTable.period_from.between(datetime(2021, 11, 8, 1), datetime(2021, 11, 8, 18, 30)))
+        ChartTable.period_from.between(datetime(2021, 11, 8, 1), datetime(2021, 11, 8, 18, 30))
+    )
     if df.empty:
         exit()
 
-    plot(pandas.DataFrame.copy(df), KMeans)
-    plot(pandas.DataFrame.copy(df), Fractal)
-    plot(pandas.DataFrame.copy(df), WindowShifting)
+    # plot(df, Fractal)
+    plot(df, WindowShifting)
