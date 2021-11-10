@@ -1,5 +1,6 @@
 from typing import List, Union
 
+import pandas
 import numpy
 import math
 
@@ -9,14 +10,17 @@ from ._abc import SupportResistance
 class WindowShifting(SupportResistance):
     # Ref: https://medium.datadriveninvestor.com/how-to-detect-support-resistance-levels-and-breakout-using-python-f8b5dac42f21
 
-    WINDOW_SIZE = 9  # This may be determined according to the length of the data frame size
+    def __init__(self, df: pandas.DataFrame) -> None:
+        self.window_size = 9  # math.ceil(len(df) / 7)
+        print(self.window_size)
+        super().__init__(df)
 
     def _set_levels(self) -> None:
         self._mean = numpy.mean(self.df['High'] - self.df['Low'])
         high_range = self._determine_max_or_min_within_window('High', max)
         low_range = self._determine_max_or_min_within_window('Low', min)
 
-        pivot = math.ceil(self.WINDOW_SIZE / 2)
+        pivot = math.ceil(self.window_size / 2)
         self.__set_levels(high_range, pivot, self._resistances)
         self.__set_levels(low_range, pivot, self._supports)
 
@@ -28,9 +32,10 @@ class WindowShifting(SupportResistance):
                 continue
 
             counter += 1
-            if counter == pivot:
-                target.append(n)
+            if counter != pivot:
+                continue
 
+            target.append(n)
             if self._is_far_from_level(n):
                 self._levels.append(n)
 
@@ -40,7 +45,7 @@ class WindowShifting(SupportResistance):
     def _determine_max_or_min_within_window(self, high_or_low: str, max_or_min: Union[max, min]) -> List[int]:
         nums = numpy.array(self.df[high_or_low])
         n = len(nums)
-        k = self.WINDOW_SIZE
+        k = self.window_size
         if n * k == 0:
             return []
 
