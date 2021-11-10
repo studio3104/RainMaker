@@ -11,7 +11,7 @@ class WindowShifting(SupportResistance):
     # Ref: https://medium.datadriveninvestor.com/how-to-detect-support-resistance-levels-and-breakout-using-python-f8b5dac42f21
 
     def __init__(self, df: pandas.DataFrame) -> None:
-        self.window_size = 9  # math.ceil(len(df) / 7)
+        self.window_size = math.ceil(len(df) / 7)
         print(self.window_size)
         super().__init__(df)
 
