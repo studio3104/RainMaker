@@ -28,6 +28,10 @@ class Chart:
             condition = ChartTable.period_from.between(_from, now)
         self.__df = ChartTable.query_as_data_frame(self.chart_type, condition)
 
+        if auto_following:
+            self.__start_thread(following_interval)
+
+    def __start_thread(self, interval: float) -> None:
         def _continue_following() -> None:
             start_time = time.time()
 
@@ -36,12 +40,11 @@ class Chart:
                 _t.start()
                 _t.join()
 
-                time_to_wait = ((start_time - time.time()) % following_interval) or following_interval
+                time_to_wait = ((start_time - time.time()) % interval) or interval
                 time.sleep(time_to_wait)
 
-        if auto_following:
-            t = threading.Thread(target=_continue_following)
-            t.start()
+        t = threading.Thread(target=_continue_following)
+        t.start()
 
     @property
     def df(self) -> pandas.DataFrame:
