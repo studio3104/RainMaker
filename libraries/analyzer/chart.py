@@ -1,7 +1,8 @@
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
+import numpy
 import pandas
 from pandas.core.indexes.datetimes import DatetimeIndex
 
@@ -12,12 +13,20 @@ from libraries.exchanges.bitflyer.models import ChartTable
 class Chart:
     def __init__(
             self, product_code: ProductCode, candlestick: Candlestick,
-            auto_following: bool = True, following_interval: float = 10.0,
+            auto_following: bool = True, following_interval: float = 5.0,
+            max_num_of_candles: int = numpy.inf,
     ) -> None:
-        self.chart_type: ChartType = getattr(ChartType, f'{product_code.name}_{candlestick.name}')
-        self.__df = ChartTable.query_as_data_frame(self.chart_type, ChartTable.period_from <= datetime.utcnow())
 
         self._lock = threading.Lock()
+        self.__max_num_of_candles = max_num_of_candles
+        self.chart_type: ChartType = getattr(ChartType, f'{product_code.name}_{candlestick.name}')
+
+        now = datetime.utcnow()
+        condition = ChartTable.period_from <= now
+        if isinstance(max_num_of_candles, int) and max_num_of_candles > 0:
+            _from = now - timedelta(seconds=(candlestick.value * max_num_of_candles))
+            condition = ChartTable.period_from.between(_from, now)
+        self.__df = ChartTable.query_as_data_frame(self.chart_type, condition)
 
         def _continue_following() -> None:
             start_time = time.time()
@@ -56,5 +65,8 @@ class Chart:
 
         self.__df.drop(index=last_index, inplace=True)
         self.__df = self.__df.append(newer_df)
+
+        if len(self.__df.index) > self.__max_num_of_candles:
+            self.__df = self.__df.iloc[-self.__max_num_of_candles:, :]
 
         self._lock.release()
